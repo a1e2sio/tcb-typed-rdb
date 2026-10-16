@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 type MetadataRow = {
   record_type: "column" | "enum";
@@ -27,7 +27,15 @@ type CliPayload = {
 
 const outputArgumentIndex = process.argv.indexOf("--output");
 const outputArgument = outputArgumentIndex >= 0 ? process.argv[outputArgumentIndex + 1] : undefined;
-const outputFile = resolve(process.cwd(), outputArgument || "src/database.types.ts");
+const outputDirectoryArgumentIndex = process.argv.indexOf("--output-dir");
+const outputDirectoryArgument =
+  outputDirectoryArgumentIndex >= 0
+    ? process.argv[outputDirectoryArgumentIndex + 1]
+    : undefined;
+const outputFile = resolve(
+  process.cwd(),
+  outputArgument || join(outputDirectoryArgument || "src", "database.types.ts"),
+);
 const configArgumentIndex = process.argv.indexOf("--config-file");
 const configFile = configArgumentIndex >= 0 ? process.argv[configArgumentIndex + 1] : undefined;
 const adminMode = process.argv.includes("--admin");
@@ -37,6 +45,19 @@ const role = adminMode
   ? undefined
   : roleArgument || process.env.CLOUDBASE_DB_ROLE || "cloudbase_read_only_user";
 const envId = process.env.CLOUDBASE_ENV_ID;
+
+if (process.argv.includes("--help")) {
+  console.log(`Usage: typegen [options]
+
+Options:
+  --output <path>          Write to a specific TypeScript file.
+  --output-dir <path>      Write database.types.ts inside this directory.
+  --config-file <path>     Use a specific cloudbaserc.json file.
+  --role <name>            Query metadata using a database role.
+  --admin                  Query metadata using the admin role.
+  --help                   Show this help message.`);
+  process.exit(0);
+}
 
 if (roleArgumentIndex >= 0 && (!roleArgument || roleArgument.startsWith("--"))) {
   throw new Error("Missing database role. Use --role <role> or CLOUDBASE_DB_ROLE.");
@@ -50,6 +71,13 @@ if (configArgumentIndex >= 0 && (!configFile || configFile.startsWith("--"))) {
 if (outputArgumentIndex >= 0 && (!outputArgument || outputArgument.startsWith("--"))) {
   throw new Error("Missing output file. Use --output <path>.");
 }
+if (
+  outputDirectoryArgumentIndex >= 0 &&
+  (!outputDirectoryArgument || outputDirectoryArgument.startsWith("--"))
+)
+  throw new Error("Missing output directory. Use --output-dir <path>.");
+if (outputArgumentIndex >= 0 && outputDirectoryArgumentIndex >= 0)
+  throw new Error("Use either --output <path> or --output-dir <path>, not both.");
 
 const metadataSql = `
 SELECT
