@@ -91,7 +91,7 @@ node --experimental-strip-types node_modules/@a1e2sio/tcb-typed-rdb/scripts/type
 
 默认输出到 `src/database.types.ts`。`--output` 可以指定完整文件路径，`--output-dir` 可以指定目录并自动写入 `database.types.ts`；两者不能同时使用，目标目录不存在时会自动创建。
 
-默认角色是 `cloudbase_read_only_user`，也可以通过 `CLOUDBASE_DB_ROLE` 指定已授权角色。`--admin` 和 `--role` 不能同时使用。
+默认角色是 `cloudbase_read_only_user`，也可以通过 `CLOUDBASE_DB_ROLE` 指定已授权角色。环境 ID 优先读取 `CLOUDBASE_ENV_ID`，未设置时兼容读取 `VITE_CLOUDBASE_ENV_ID`。`--admin` 和 `--role` 不能同时使用。
 
 生成后类型随源码直接生效，无需构建或发布。
 

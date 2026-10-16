@@ -44,7 +44,7 @@ const roleArgument = roleArgumentIndex >= 0 ? process.argv[roleArgumentIndex + 1
 const role = adminMode
   ? undefined
   : roleArgument || process.env.CLOUDBASE_DB_ROLE || "cloudbase_read_only_user";
-const envId = process.env.CLOUDBASE_ENV_ID;
+const envId = process.env.CLOUDBASE_ENV_ID || process.env.VITE_CLOUDBASE_ENV_ID;
 
 if (process.argv.includes("--help")) {
   console.log(`Usage: typegen [options]
@@ -93,6 +93,13 @@ JOIN pg_catalog.pg_attribute a ON a.attrelid = cls.oid AND a.attname = c.column_
 WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
 `.trim();
 
+function quoteWindowsArgument(value: string): string {
+  if (!/[\s"]/u.test(value)) return value;
+  return `"${value
+    .replace(/(\\*)"/g, "$1$1\\\"")
+    .replace(/(\\*)$/g, "$1$1")}"`;
+}
+
 function runQuery(): string {
   const args = [] as string[];
   if (configFile) args.push("--config-file", resolve(process.cwd(), configFile));
@@ -112,14 +119,22 @@ function runQuery(): string {
   ])
     delete childEnv[variable];
 
-  const result = spawnSync(process.platform === "win32" ? "tcb.cmd" : "tcb", args, {
+  const command = process.platform === "win32" ? process.env.ComSpec || "cmd.exe" : "tcb";
+  const commandArgs =
+    process.platform === "win32"
+      ? ["/d", "/c", `tcb.cmd ${args.map(quoteWindowsArgument).join(" ")}`]
+      : args;
+  const result = spawnSync(command, commandArgs, {
     cwd: process.cwd(),
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
     env: childEnv,
   });
   const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.trim();
-  if (result.status !== 0) throw new Error(`CloudBase metadata query failed: ${output}`);
+  if (result.error || result.status !== 0) {
+    const reason = result.error?.message || output || `exit code ${result.status ?? "unknown"}`;
+    throw new Error(`CloudBase metadata query failed: ${reason}`);
+  }
   return output;
 }
 
