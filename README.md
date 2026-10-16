@@ -64,3 +64,7 @@ node --experimental-strip-types node_modules/@a1essio/tcb-typed-rdb/scripts/type
 默认角色是 `cloudbase_read_only_user`，也可以通过 `CLOUDBASE_DB_ROLE` 指定已授权角色。`--admin` 和 `--role` 不能同时使用。
 
 生成后类型随源码直接生效，无需构建或发布。
+
+## GitHub 配置
+
+GitHub 相关配置文件的职责和维护约定见 [.github/README.md](.github/README.md)。该目录说明 CI、依赖更新、Issue/PR 模板和代码所有者等配置的用途；只有实际启用的配置文件才会影响仓库行为。
