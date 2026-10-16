@@ -4,10 +4,36 @@
 
 ## 使用
 
+### 通过 Git 引入
+
+当前包可以直接从 GitHub 安装，适合在发布到 npm 前进行应用实验：
+
+```sh
+pnpm add git+ssh://git@github.com/a1e2sio/tcb-typed-rdb.git#main
+```
+
+也可以固定到某个提交，避免实验过程中上游变更：
+
+```sh
+pnpm add git+ssh://git@github.com/a1e2sio/tcb-typed-rdb.git#<commit>
+```
+
+Git 依赖安装时会通过 `prepare` 自动执行构建，生成 `dist` 类型入口。调用项目仍需自行安装 CloudBase SDK：
+
+```sh
+pnpm add @cloudbase/js-sdk
+```
+
+安装完成后，通过包名导入类型：
+
+```ts
+import type { GenericDatabase, TypedRdb } from "@a1e2sio/tcb-typed-rdb";
+```
+
 ```ts
 import type { Database } from "./database.types";
 import cloudbaseSDK from "@cloudbase/js-sdk";
-import type { GenericDatabase, TypedRdb } from "@a1essio/tcb-typed-rdb";
+import type { GenericDatabase, TypedRdb } from "@a1e2sio/tcb-typed-rdb";
 
 type CloudbaseConfig = Parameters<typeof cloudbaseSDK.init>[0];
 type CloudbaseSdkClient = ReturnType<typeof cloudbaseSDK.init>;
@@ -54,11 +80,11 @@ export const cloudbase = createCloudbaseClient({
 类型生成器使用调用项目 PATH 中的 CloudBase CLI 查询 PostgreSQL 元数据，并写入调用项目的 `src/database.types.ts`。在调用项目目录执行：
 
 ```sh
-pnpm exec node --experimental-strip-types node_modules/@a1essio/tcb-typed-rdb/scripts/typegen.ts
-pnpm exec node --experimental-strip-types node_modules/@a1essio/tcb-typed-rdb/scripts/typegen.ts --admin
-node --experimental-strip-types node_modules/@a1essio/tcb-typed-rdb/scripts/typegen.ts --role my_database_role
-node --experimental-strip-types node_modules/@a1essio/tcb-typed-rdb/scripts/typegen.ts --config-file path/to/cloudbaserc.json
-node --experimental-strip-types node_modules/@a1essio/tcb-typed-rdb/scripts/typegen.ts --output src/database.types.ts
+pnpm exec node --experimental-strip-types node_modules/@a1e2sio/tcb-typed-rdb/scripts/typegen.ts
+pnpm exec node --experimental-strip-types node_modules/@a1e2sio/tcb-typed-rdb/scripts/typegen.ts --admin
+node --experimental-strip-types node_modules/@a1e2sio/tcb-typed-rdb/scripts/typegen.ts --role my_database_role
+node --experimental-strip-types node_modules/@a1e2sio/tcb-typed-rdb/scripts/typegen.ts --config-file path/to/cloudbaserc.json
+node --experimental-strip-types node_modules/@a1e2sio/tcb-typed-rdb/scripts/typegen.ts --output src/database.types.ts
 ```
 
 默认角色是 `cloudbase_read_only_user`，也可以通过 `CLOUDBASE_DB_ROLE` 指定已授权角色。`--admin` 和 `--role` 不能同时使用。

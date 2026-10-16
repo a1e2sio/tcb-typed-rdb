@@ -1,8 +1,12 @@
 {
-  "name": "@a1essio/tcb-typed-rdb",
+  "name": "@a1e2sio/tcb-typed-rdb",
   "version": "0.0.1",
   "type": "module",
   "packageManager": "pnpm@12.11.2",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/a1e2sio/tcb-typed-rdb.git"
+  },
   "files": [
     "dist",
     "scripts"
@@ -16,6 +20,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepare": "pnpm build",
     "prepublishOnly": "pnpm typecheck && pnpm build"
   },
   "devDependencies": {
