@@ -20,7 +20,6 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "prepare": "pnpm build",
     "prepublishOnly": "pnpm typecheck && pnpm build"
   },
   "devDependencies": {

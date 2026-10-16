@@ -139,10 +139,22 @@ function runQuery(): string {
   return output;
 }
 
+function parseJsonPayload(output: string): CliPayload | unknown[] {
+  for (const match of output.matchAll(/[\[{]/g)) {
+    try {
+      return JSON.parse(output.slice(match.index)) as CliPayload | unknown[];
+    } catch {
+      continue;
+    }
+  }
+  throw new Error(
+    `CloudBase CLI returned no JSON payload${output ? `: ${output}` : " (empty output)"}`,
+  );
+}
+
 function rowsFromJson(output: string): MetadataRow[] {
-  const jsonStart = output.indexOf("{");
-  if (jsonStart < 0) throw new Error("CloudBase CLI returned no JSON payload");
-  const parsed = JSON.parse(output.slice(jsonStart)) as CliPayload;
+  const parsed = parseJsonPayload(output);
+  if (Array.isArray(parsed)) return parsed as MetadataRow[];
   const rawRows = parsed.data?.Rows ?? parsed.rows;
   const rows = Array.isArray(rawRows)
     ? rawRows.map((row) => (typeof row === "string" ? JSON.parse(row) : row))
