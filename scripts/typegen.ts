@@ -108,7 +108,7 @@ function runQuery(): string {
   if (envId) args.push("-e", envId);
   args.push("db", "execute");
   if (role) args.push("--role", role);
-  args.push("--sql", metadataSql, "--json");
+  args.push("--json", "--sql", metadataSql);
 
   const childEnv = { ...process.env };
   for (const variable of [
@@ -131,9 +131,13 @@ function runQuery(): string {
     env: childEnv,
     windowsVerbatimArguments: process.platform === "win32",
   });
-  const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.trim();
+  const stdout = `${result.stdout ?? ""}`.trim();
+  const stderr = `${result.stderr ?? ""}`.trim();
+  const output = stdout || stderr;
   if (result.error || result.status !== 0) {
-    const reason = result.error?.message || output || `exit code ${result.status ?? "unknown"}`;
+    const reason =
+      result.error?.message || [stdout, stderr].filter(Boolean).join("\n") ||
+      `exit code ${result.status ?? "unknown"}`;
     throw new Error(`CloudBase metadata query failed: ${reason}`);
   }
   return output;
