@@ -129,6 +129,7 @@ function runQuery(): string {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
     env: childEnv,
+    windowsVerbatimArguments: process.platform === "win32",
   });
   const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.trim();
   if (result.error || result.status !== 0) {
