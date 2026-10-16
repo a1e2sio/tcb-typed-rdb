@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tgz
+
+.env
+.env.*
+!.env.example
+
+src/database.types.ts
+
+.DS_Store
+pnpm-debug.log*

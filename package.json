@@ -1,0 +1,24 @@
+{
+  "name": "@a1essio/tcb-typed-rdb",
+  "version": "0.0.1",
+  "type": "module",
+  "packageManager": "pnpm@12.11.2",
+  "files": [
+    "dist",
+    "scripts"
+  ],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "pnpm typecheck && pnpm build"
+  },
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}
